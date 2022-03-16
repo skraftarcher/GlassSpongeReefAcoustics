@@ -1,3 +1,24 @@
+#data files
+.csv
+.xls
+.xlsx
+.rds
+
+#text documents
+.doc
+.docx
+.pdf
+
+#images
+.png
+.jpg
+.jpeg
+.tif
+.tiff
+
+# R rpojects
+.Rproj
+
 # History files
 .Rhistory
 .Rapp.history
