@@ -8,3 +8,7 @@ output: html_document
 Here is where we will brainstorm questions
 
 Do fish call rates track with relative fish abundance?
+
+Are there different types of fish calls on the different reefs?
+
+Does boat noise impact fish calling behavior?
