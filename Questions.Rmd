@@ -6,3 +6,5 @@ output: html_document
 ---
 
 Here is where we will brainstorm questions
+
+Do fish call rates track with relative fish abundance?
