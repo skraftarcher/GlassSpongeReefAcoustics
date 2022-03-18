@@ -1,0 +1,8 @@
+---
+title: "Questions"
+author: "Stephanie Archer"
+date: "3/18/2022"
+output: html_document
+---
+
+Here is where we will brainstorm questions
