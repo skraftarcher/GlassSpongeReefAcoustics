@@ -7,12 +7,49 @@ output: html_document
 
 Here is where we will brainstorm questions
 
-Do fish call rates track with relative fish abundance?
+# Abundance questions 
 
-Are there different types of fish calls on the different reefs?
++ Useful data types/sources available  
+++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)
+++ Use Bella Bella, Lions Bay, halibut bank as "groundtruthing?" (Philina likes outgroups)
++++ Fish call detections
++++ SPL data
 
-Does boat noise impact fish calling behavior?
+## Do fish call rates track with relative fish abundance?  
 
-How does boat noise masking affect our ability to detect fish calls?
 
-How does biodiversity affect the rates and types of fish calls?
+## Are there aspects of the soundscape that track with animal abundance?  
+
+# Biodiversity questions  
+
++ Useful data types/sources available  
+++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)
+++ Use Bella Bella, Lions Bay, halibut bank as "groundtruthing?" (Philina likes outgroups)
++++ Fish call detections
++++ SPL data
+
+## Are there different types of fish calls on the different reefs?  
+
+## How does biodiversity affect the rates and types of fish calls?  
+
+## Are there aspects of the soundscape that track with taxa richness?  
+
+
+# Boat noise & Environmental drivers questions  
+
++ Useful data types/sources available 
+++ Boat noise detector results (all reefs)
+++ Fish call detector results (all reefs)
+++ Moon phase data (needs to gather)
+++ weather data (need to gather for hecate)
+
+
+# Does boat noise impact fish calling behavior?  
+
+# How does boat noise masking affect our ability to detect fish calls?  
+ 
+# Do light levels influence calling rates  
+
+# Are there diurnal patterns in calling rates  
+
+
