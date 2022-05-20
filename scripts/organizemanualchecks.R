@@ -54,7 +54,9 @@ man.indcall<-md2%>%
   # if you only want to get rid of a few columns you can use this function too, 
   # you just list the columns you want to get rid of with a - in front
   select(Auto.Class=Class,#when you put a new variable name = old variable name in this function it renames the variable
+         Man.Class=man.class,
          agree,
+         CallDate,
          Call.type=`Call Type`,
          delta.time=`Delta Time (s)`,
          low.freq=`Low Freq (Hz)`,

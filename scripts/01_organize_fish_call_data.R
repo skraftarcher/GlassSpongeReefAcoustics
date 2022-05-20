@@ -9,6 +9,7 @@ source("scripts/install_packages_function.R")
 lp("tidyverse")
 lp("lubridate")
 lp("Rraven")
+lp("readxl")
 
 # now bring in files
 
@@ -43,10 +44,80 @@ bella[[2]]$Auto.Class
 
 theme_set(theme_bw()+theme(panel.grid = element_blank()))
 
+
+
+ggplot(bella$full.data)+
+  geom_jitter(aes(x=Confidence,y=Auto.Class,color=agree),alpha=.5)
+
+bella$full.data$man.class<-case_when(
+  bella$full.data$Auto.Class=="FS" & bella$full.data$agree ~ "FS",
+  bella$full.data$Auto.Class=="FS" & !bella$full.data$agree ~"NN",
+  bella$full.data$Auto.Class=="NN" & bella$full.data$agree ~ "NN",
+  bella$full.data$Auto.Class=="NN" & !bella$full.data$agree ~"FS")
+
+
+ggplot(bella$full.data)+
+  geom_jitter(aes(x=Confidence,y=man.class),alpha=.5)+
+  facet_wrap(~Auto.Class)
+
+# adjusting confidence cutoffs doesn't seem like a great approach to improve fit
+
+# Now look at per minute
 ggplot(bella$by.min.summary)+
   geom_jitter(aes(x=n.man.fishcall,y=n.auto.fishcall))+
   geom_abline(aes(intercept=0,slope=1))
 
-ggplot(bella$full.data)+
-  geom_jitter(aes(x=Confidence,y=Auto.Class,color=agree),alpha=.5)+
-  facet_wrap(~Call.type)
+# bring in SPL
+
+bella.spl<-read_xlsx("odata/Bella Bella_SPL_60sec.xlsx")
+
+bella.spl2<-bella.spl%>%
+  mutate(yr=year(Date),
+         mnth=month(Date),
+         d=day(Date),
+         hr=hour(Time),
+         min=minute(Time),
+         sec=second(Time),
+         SPL_DT=ymd_hms(paste(yr,mnth,d,hr,min,sec)),
+         inter=row_number())%>%
+  select(-DateTime,-Date,-Time)
+
+bella$full.data$inter<-findInterval(bella$full.data$CallDate,bella.spl2$SPL_DT)
+
+bella.spl3<-bella.spl2%>%
+  select(-yr,-mnth,-d,-hr,-min,-sec)
+
+bella.full.min<-bella$full.data%>%
+  left_join(bella.spl3)%>%
+  mutate(Auto=ifelse(Auto.Class=="FS",1,0))%>%
+  group_by(inter,`.02-0.1kHz`, `0.1-1kHz`, `1-10kHz`,
+           `10-48kHz`,`0.02-48kHz`)%>%
+  summarize(n.man.calls=sum(Man.Class),
+            n.auto.calls=sum(Auto))%>%
+  mutate(auto.man.ratio=(n.auto.calls+1)/(1+n.man.calls))
+
+ggplot(bella.full.min)+
+  geom_jitter(aes(x=n.man.calls,y=n.auto.calls,color=`0.02-48kHz`))+
+  geom_abline(aes(intercept=0,slope=1))
+
+
+ggplot(bella.full.min)+
+  geom_jitter(aes(y=auto.man.ratio,x=`0.02-48kHz`,color=n.man.calls))+
+  scale_color_viridis_c()
+
+
+
+
+# make a confusion matrix
+lp("caret")
+prediction<-bella$full.data$Auto.Class
+prediction<-ifelse(prediction=="","NN",prediction)
+truth<-case_when(
+  bella$full.data$Auto.Class=="FS" & bella$full.data$agree ~ "FS",
+  bella$full.data$Auto.Class=="FS" & !bella$full.data$agree ~"NN",
+  bella$full.data$Auto.Class=="NN" & bella$full.data$agree ~ "NN",
+  bella$full.data$Auto.Class=="NN" & !bella$full.data$agree ~"FS")
+
+xtab<-table(prediction,truth)
+
+confusionMatrix(xtab, dnn=c("Prediction","Reference"))
