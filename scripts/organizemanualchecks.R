@@ -13,7 +13,7 @@ lp("Rraven")
 
 #we may need to adjust this as we go, but this is the list of what I think
 # fish calls may have been called in all the datasets
-man.calls<-c("F","f","FS","fs")
+man.calls<-c("F","f","FS","fs","K","G","G ","G  ","K  ")
 
 #bring in the dataset
 md<-imp_raven(path="odata",
