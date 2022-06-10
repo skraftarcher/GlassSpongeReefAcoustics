@@ -57,14 +57,21 @@ ggplot(lb1$by.min.summary)+
 ggplot(lb1$full.data)+
   geom_jitter(aes(x=Confidence,y=Auto.Class,color=agree),alpha=.5)+
   facet_wrap(~Call.type)
-##auto detector thinks its a fish when its not for the N section.
-lb1$full.data%>%
-  mutate(Call.type= ifelse(Call.type %in% c("G", "G ","G  "),"G",ifelse(Call.type %in% c("K", "K  "),"K","N")))%>%
-  ggplot()+
-  geom_jitter(aes(x=Confidence,y=Auto.Class,color=agree),alpha=.5)+
-  facet_wrap(~Call.type)
-#for this last 2 plots, theres one false data point where i.  should not be with the auto class NN and the manual N. If you run this line below you see in the call type column a singular N that we think might be the problem and do not know what it is about.....
-lb1$full.data%>%filter(Auto.Class=="NN"& agree=="FALSE")%>%View()
+# # examine outlier here
+# filter(lb1$full.data,Auto.Class=="NN")%>%
+#   filter(agree==FALSE)%>%
+#   filter(Call.type=="N")
+
+# we fixed the problem in the function - code below not needed anymore
+# ##auto detector thinks its a fish when its not for the N section.
+# lb1$full.data%>%
+#   mutate(Call.type= ifelse(Call.type %in% c("G", "G ","G  "),"G",ifelse(Call.type %in% c("K", "K  "),"K","N")))%>%
+#   ggplot()+
+#   geom_jitter(aes(x=Confidence,y=Auto.Class,color=agree),alpha=.5)+
+#   facet_wrap(~Call.type)
+# #for this last 2 plots, theres one false data point where i.  should not be with the auto class NN and the manual N. If you run this line below you see in the call type column a singular N that we think might be the problem and do not know what it is about.....
+# lb1$full.data%>%filter(Auto.Class=="NN"& agree=="FALSE")%>%View()
+# 
 
 
 ###BellaBella-----

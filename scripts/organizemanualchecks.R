@@ -13,7 +13,9 @@ lp("Rraven")
 
 #we may need to adjust this as we go, but this is the list of what I think
 # fish calls may have been called in all the datasets
-man.calls<-c("F","f","FS","fs","K","G","G ","G  ","K  ")
+man.calls<-c("F","f","FS","fs")
+call.types.k<-c("K","K  ")
+call.types.g<-c("G","G ","G  ")
 
 #bring in the dataset
 md<-imp_raven(path="odata",
@@ -46,7 +48,37 @@ md2<-md%>%
          man.class=ifelse(`Fish Call` %in% man.calls,1,0),
          # this creates a variable that is true if the autodetector and the manual
          # detector called it the same thing and false if they didn't
-         agree=ifelse(auto.class==man.class,TRUE,FALSE))
+         agree=ifelse(auto.class==man.class,TRUE,FALSE),
+         `Call Type`=ifelse(`Call Type` %in% call.types.k,"K",`Call Type`),
+         `Call Type`=ifelse(`Call Type` %in% call.types.g,"G",`Call Type`))
+#think through all the combinations of things that would indicate
+# data entry error on the part of the reviewer
+
+#this is where reviewer called it a fish but assigned a call type of noise
+mdp1<-filter(md2,auto.class==0)%>%
+  filter(agree==FALSE)%>%
+  filter(`Call Type`=="N")
+
+# This is where reviewer called it noise but assigned it to grunt or knock
+mdp2<-filter(md2,auto.class==0)%>%
+  filter(agree==TRUE)%>%
+  filter(`Call Type` %in% c("K","G"))
+
+# This is where reviewer called it noise but assigned it to grunt or knock
+mdp3<-filter(md2,auto.class==1)%>%
+  filter(agree==FALSE)%>%
+  filter(`Call Type` %in% c("K","G"))
+
+#this is where reviewer called it a fish but assigned a call type of noise
+mdp4<-filter(md2,auto.class==1)%>%
+  filter(agree==TRUE)%>%
+  filter(`Call Type`=="N")
+
+# now we can remove problematic rows
+md2<-anti_join(md2,mdp1)%>%
+  anti_join(mdp2)%>%
+  anti_join(mdp3)%>%
+  anti_join(mdp4)
 
 #creating a streamlined data set for us to look at later
 man.indcall<-md2%>%
