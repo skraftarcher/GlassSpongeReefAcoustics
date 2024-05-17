@@ -25,6 +25,28 @@ bb2<-bb%>%
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time),
+         mns=minute(cal.time))
+
+# hourly summary
+bb3<-bb2%>%
+  group_by(yr,mnth,dy,hr)%>%
+  reframe(calls=n())%>%
+  distinct()
+
+# get all hours from min to max time in bb2
+bb4<-data.frame(dt=seq(min(bb2$cal.time),max(bb2$cal.time),3600))%>%
+  mutate(yr=year(dt),
+         mnth=month(dt),
+         dy=day(dt),
+         hr=hour(dt),
+         md=paste(mnth,"-",dy),
          Reef="Bella Bella")%>%
-  left_join(hyd)
+  left_join(hyd)%>%
+  select(-dt)%>%
+  left_join(bb3)%>%
+  mutate(calls=ifelse(is.na(calls),0,calls))
+
+# visualize
+ggplot(bb4)+
+  geom_tile(aes(y=hr,x=md,fill = calls))
+                
