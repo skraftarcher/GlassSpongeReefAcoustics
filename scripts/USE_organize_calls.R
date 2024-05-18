@@ -442,3 +442,21 @@ ggplot(hd74)+
   labs(title=unique(hd74$Reef))
 
 ggsave("figures/hecate_onreef5_fulldataset.png", width=3,height=5)
+
+# make a boxplot figure
+
+all.reefs<-bind_rows(bb4,lb4,hd14,hd24,hd34,hd44,hd54,hd64,hd74)%>%
+  mutate(Reef2=case_when(
+    Reef=="Bella Bella"~"Bella Bella",
+    Reef=="Lions Bay"~"Lions Bay",
+    !Reef %in% c("Bella Bella","Lions Bay")~"Hecate"))
+all.reefs$hr<-as.factor(all.reefs$hr)
+
+
+ggplot(data=all.reefs)+
+  geom_boxplot(aes(y=calls,x=hr,fill=Reef))+
+  theme(panel.background = element_rect(fill="white"))+
+  facet_wrap(vars(Reef),ncol=1,scales="free")+
+  ylab("Calls per hour")+
+  scale_fill_viridis_d()
+
