@@ -452,6 +452,8 @@ all.reefs<-bind_rows(bb4,lb4,hd14,hd24,hd34,hd44,hd54,hd64,hd74)%>%
     !Reef %in% c("Bella Bella","Lions Bay")~"Hecate"))
 all.reefs$hr<-as.factor(all.reefs$hr)
 
+write.csv(all.reefs,"wdata/allreefs_hourlysummary.csv",row.names = FALSE)
+
 
 ggplot(data=all.reefs)+
   geom_boxplot(aes(y=calls,x=hr,fill=Reef))+
