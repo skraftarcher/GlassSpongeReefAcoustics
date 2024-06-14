@@ -1,5 +1,7 @@
 #data files
 /odata/
+/wdata/
+/figures/
 .csv
 .xls
 .xlsx
@@ -7,6 +9,7 @@
 #text documents
 .doc
 .docx
+.pdf
 .pdf
 #images
 .png

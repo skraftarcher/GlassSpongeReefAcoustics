@@ -2,7 +2,9 @@
 title: "Questions"
 author: "Stephanie Archer"
 date: "3/18/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
  
 Here is where we will brainstorm questions
@@ -10,10 +12,10 @@ Here is where we will brainstorm questions
 # Abundance questions 
 
 + Useful data types/sources available  
-++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)
-++ Use Bella Bella, Lions Bay, halibut bank as "groundtruthing?" (Philina likes outgroups)
-+++ Fish call detections
-+++ SPL data
+++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)  
+++ Use Bella Bella, Lions Bay, halibut bank as "ground truthing?" (Philina likes outgroups)  
++++ Fish call detections  
++++ SPL data  
 
 ## Do fish call rates track with relative fish abundance?  
 
@@ -23,10 +25,10 @@ Here is where we will brainstorm questions
 # Biodiversity questions  
 
 + Useful data types/sources available  
-++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)
-++ Use Bella Bella, Lions Bay, halibut bank as "groundtruthing?" (Philina likes outgroups)
-+++ Fish call detections
-+++ SPL data
+++ Hecate 5 on reef hydrophones w/ paired single ROV (less than a week)  
+++ Use Bella Bella, Lions Bay, halibut bank as "ground truthing?" (Philina likes outgroups)  
++++ Fish call detections  
++++ SPL data  
 
 ## Are there different types of fish calls on the different reefs?  
 
@@ -38,10 +40,10 @@ Here is where we will brainstorm questions
 # Boat noise & Environmental drivers questions  
 
 + Useful data types/sources available 
-++ Boat noise detector results (all reefs)
-++ Fish call detector results (all reefs)
-++ Moon phase data (needs to gather)
-++ weather data (need to gather for hecate)
+++ Boat noise detector results (all reefs)  
+++ Fish call detector results (all reefs)  
+++ Moon phase data (needs to gather)  
+++ weather data (need to gather for hecate)  
 
 
 # Does boat noise impact fish calling behavior?  
