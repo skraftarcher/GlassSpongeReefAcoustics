@@ -3,15 +3,22 @@
 source("scripts/install_packages_function.R")
 lp("tidyverse")
 lp("Rraven")
-lp("lubridate")
+lp("readxl")
 
 theme_set(theme_bw()+theme(panel.grid = element_blank(),
                            panel.background = element_rect(fill="grey3"),
                            legend.position = "top"))
 # bring in hydrophone location info
 hyd<-read_csv("odata/downloaded_2024-05-17_hydrophone_locations.csv")
+# bring in SPL data
+hecspl<-read_xlsx("odata/hecatespl.xlsx")%>%
+  mutate(DateTime=mdy_hm(DateTime))
+bellaspl<-read_xlsx("odata/bellaspl.xlsx")
+year(bellaspl$DateTime)<-2017
+lionsspl<-read_xlsx("odata/lionsbayspl.xlsx")
+year(lionsspl$DateTime)<-2017
 
-# bella bella
+# bella bella----
 # find empty files first
 fls<-list.files("odata/bella")
 
@@ -20,15 +27,22 @@ for(i in 2:length(fls))bb<-rbind(bb,read.delim(file.path("odata","bella",fls[i])
 
 # get date and time of each observation
 bb2<-bb%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove = FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date >=min(bellaspl$DateTime))
+
+# save this
+write.csv(bb2,"wdata/bella_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 bb3<-bb2%>%
@@ -58,7 +72,7 @@ ggplot(bb4)+
   xlab("")+
   labs(title="Bella Bella")
 
-ggsave("figures/bellabella_fulldataset.png", width=7,height=5)
+ggsave("figures/bellabella_fullcalldataset.png", width=7,height=5)
 
 # lions bay     
 fls<-list.files("odata/lions")
@@ -68,15 +82,21 @@ for(i in 2:length(fls))lb<-rbind(lb,read.delim(file.path("odata","lions",fls[i])
 
 # get date and time of each observation
 lb2<-lb%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove = FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date >=min(lionsspl$DateTime))
+
+write.csv(lb2,"wdata/lionsbay_fullcalldataset.csv",row.names=FALSE)
 
 # hourly summary
 lb3<-lb2%>%
@@ -116,16 +136,37 @@ hd1<-read.delim(file.path("odata","hec_dfo1",fls[1]),sep="\t")
 for(i in 2:length(fls))hd1<-rbind(hd1,read.delim(file.path("odata","hec_dfo1",fls[i]),sep="\t"))
 
 # get date and time of each observation
+dfo1<-hecspl%>%
+  filter(Recorder=="DFO1")
+dfo2<-hecspl%>%
+  filter(Recorder=="DFO2")
+dfo3<-hecspl%>%
+  filter(Recorder=="DFO3")
+dfo4<-hecspl%>%
+  filter(Recorder=="DFO4")
+dfo5<-hecspl%>%
+  filter(Recorder=="DFO5")
+fj1<-hecspl%>%
+  filter(Recorder=="FJ1")
+fj3<-hecspl%>%
+  filter(Recorder=="FJ3")
+
 hd12<-hd1%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(dfo1$DateTime))
+
+write.csv(hd12,"wdata/hecate_dfo1_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd13<-hd12%>%
@@ -157,6 +198,7 @@ ggplot(hd14)+
 
 ggsave("figures/hecate_offreef1_fulldataset.png", width=3,height=5)
 
+
 fls<-list.files("odata/hec_dfo2")
 
 hd2<-read.delim(file.path("odata","hec_dfo2",fls[1]),sep="\t")
@@ -164,15 +206,21 @@ for(i in 2:length(fls))hd2<-rbind(hd2,read.delim(file.path("odata","hec_dfo2",fl
 
 # get date and time of each observation
 hd22<-hd2%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(dfo2$DateTime))
+
+write.csv(hd22,"wdata/hecate_dfo2_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd23<-hd22%>%
@@ -212,15 +260,21 @@ for(i in 2:length(fls))hd3<-rbind(hd3,read.delim(file.path("odata","hec_dfo3",fl
 
 # get date and time of each observation
 hd32<-hd3%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(dfo3$DateTime))
+
+write.csv(hd32,"wdata/hecate_dfo3_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd33<-hd32%>%
@@ -260,15 +314,21 @@ for(i in 2:length(fls))hd4<-rbind(hd4,read.delim(file.path("odata","hec_dfo4",fl
 
 # get date and time of each observation
 hd42<-hd4%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(10,12,14,16,18,20,22))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(10,12,14,16,18,20,22),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(dfo4$DateTime))
+
+write.csv(hd42,"wdata/hecate_dfo4_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd43<-hd42%>%
@@ -307,15 +367,21 @@ for(i in 2:length(fls))hd5<-rbind(hd5,read.delim(file.path("odata","hec_dfo5",fl
 
 # get date and time of each observation
 hd52<-hd5%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(9,11,13,15,17,19,21))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(9,11,13,15,17,19,21),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(dfo5$DateTime))
+
+write.csv(hd52,"wdata/hecate_dfo5_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd53<-hd52%>%
@@ -355,15 +421,21 @@ for(i in 2:length(fls))hd6<-rbind(hd6,read.delim(file.path("odata","hec_fj1",fls
 
 # get date and time of each observation
 hd62<-hd6%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(11,13,15,17,19,21,23))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(11,13,15,17,19,21,23),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(fj1$DateTime))
+
+write.csv(hd62,"wdata/hecate_fj1_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd63<-hd62%>%
@@ -403,15 +475,21 @@ for(i in 2:length(fls))hd7<-rbind(hd7,read.delim(file.path("odata","hec_fj3",fls
 
 # get date and time of each observation
 hd72<-hd7%>%
-  separate(Begin.File,into = c("bg","yr","mnth","dy","hr","mns","secs"),sep=c(11,13,15,17,19,21,23))%>%
+  separate(Begin.File,
+           into = c("bg","yr","mnth","dy","hr","mns","secs"),
+           sep=c(11,13,15,17,19,21,23),
+           remove=FALSE)%>%
   mutate(file.start.date=ymd_hms(paste(yr,mnth,dy,hr,mns,secs)),
          cal.time=file.start.date+File.Offset..s.)%>%
-  select(cal.time,file.start.date,Confidence)%>%
+  select(cal.time,Begin.File,File.Offset..s.,file.start.date,Confidence)%>%
   mutate(yr=year(cal.time),
          mnth=month(cal.time),
          dy=day(cal.time),
          hr=hour(cal.time),
-         mns=minute(cal.time))
+         mns=minute(cal.time))%>%
+  filter(file.start.date>min(fj3$DateTime))
+
+write.csv(hd72,"wdata/hecate_fj3_fullcalldataset.csv",row.names = FALSE)
 
 # hourly summary
 hd73<-hd72%>%
