@@ -34,10 +34,16 @@ bbwthr2<-bbwthr%>%
   select(date.time=time,precip_amt,temp,wind_dir,wind_spd)%>%
   mutate()
 
+write.csv(bbwthr2,"wdata/bellabella_weather.csv",row.names = FALSE)
+
 #lions bay
 lbwthr2<-lbwthr%>%
   select(date.time=time,precip_amt,temp,wind_dir,wind_spd)
 
+write.csv(lbwthr2,"wdata/lionsbay_weather.csv",row.names = FALSE)
+
 #hecate
 hwthr2<-hwthr%>%
   select(date.time=time,precip_amt,temp,wind_dir,wind_spd)
+
+write.csv(hwthr2,"wdata/hecate_weather.csv",row.names = FALSE)
