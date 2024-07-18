@@ -4,6 +4,7 @@ source("scripts/install_packages_function.R")
 lp("tidyverse")
 lp("lubridate")
 lp("stringr")
+lp("readxl")
 
 sunmoon<-read.csv("wdata/moonandsun.csv")%>%
   mutate(hrs=ymd_hms(hrs),
@@ -41,9 +42,19 @@ bella.weather<-read.csv("wdata/bellabella_weather.csv")%>%
   separate(time,into=c("hr","mns","secs"),sep=":",convert = TRUE)%>%
   select(-mns,-secs)
 
+bella.tides<-bind_rows(read.csv("odata/bella_tide_data1.csv"),read.csv("odata/bella_tide_data2.csv"))%>%
+  mutate(date=mdy_hm(Obs_date),
+         yr=year(date),
+         mnth=month(date),
+         dy=day(date),
+         hr=hour(date),
+         mns=minute(date))%>%
+  select(-Obs_date,-date)
+
 bella<-left_join(bella.spl,bella.calls)%>%
   left_join(bella.weather)%>%
   left_join(sunmoon[sunmoon$Reef=="Bella Bella",])%>%
+  left_join(bella.tides)%>%
   mutate(calls=ifelse(is.na(calls),0,calls),
          ID="BellaBella")
 
@@ -71,9 +82,19 @@ lions.weather<-read.csv("wdata/lionsbay_weather.csv")%>%
   separate(time,into=c("hr","mns","secs"),sep=":",convert = TRUE)%>%
   select(-mns,-secs)
 
+lions.tides<-bind_rows(read.csv("odata/lions_tide_data1.csv"),read.csv("odata/lions_tide_data2.csv"))%>%
+  mutate(date=mdy_hm(Obs_date),
+         yr=year(date),
+         mnth=month(date),
+         dy=day(date),
+         hr=hour(date),
+         mns=minute(date))%>%
+  select(-Obs_date,-date)
+
 lions<-left_join(lions.spl,lions.calls)%>%
   left_join(lions.weather)%>%
   left_join(sunmoon[sunmoon$Reef=="Lions Bay",])%>%
+  left_join(lions.tides)%>%
   mutate(calls=ifelse(is.na(calls),0,calls),
          ID="LionsBay")
 
@@ -101,7 +122,7 @@ for(i in 1:length(fls)){
   t1<-read.csv(file.path("wdata",fls[i]))
   t2<-toupper(str_split_i(fls[i],pattern="_",i=2))
   t1$Recorder<-t2
-  hecate.calls<-bind_rows(hecate,t1)
+  hecate.calls<-bind_rows(hecate.calls,t1)
 }
 
 hecate.calls<-hecate.calls%>%
@@ -115,9 +136,19 @@ hecate.weather<-read.csv("wdata/hecate_weather.csv")%>%
   separate(time,into=c("hr","mns","secs"),sep=":",convert = TRUE)%>%
   select(-mns,-secs)
 
+hecate.tides<-read.csv("odata/hecate_tide_data.csv")%>%
+  mutate(date=mdy_hm(Obs_date),
+         yr=year(date),
+         mnth=month(date),
+         dy=day(date),
+         hr=hour(date),
+         mns=minute(date))%>%
+  select(-Obs_date,-date)
+
 hecate<-left_join(hecate.spl,hecate.calls)%>%
   left_join(hecate.weather)%>%
   left_join(sunmoon[sunmoon$Reef=="Hecate",])%>%
+  left_join(hecate.tides)%>%
   mutate(calls=ifelse(is.na(calls),0,calls))%>%
   rename(ID=Recorder)
 
