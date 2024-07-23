@@ -51,10 +51,21 @@ bella.tides<-bind_rows(read.csv("odata/bella_tide_data1.csv"),read.csv("odata/be
          mns=minute(date))%>%
   select(-Obs_date,-date)
 
+bella.boat<-read_xlsx("odata/PAMlabResults_BellaBella__20170821_20171022__AOutput.xlsx")%>%
+  select(Time,ship='shipping tonals')%>%
+  mutate(yr=year(Time),
+         mnth=month(Time),
+         dy=day(Time),
+         hr=hour(Time),
+         mns=minute(Time),
+         ship=ifelse(ship==0,0,1))%>%
+  select(-Time)
+
 bella<-left_join(bella.spl,bella.calls)%>%
   left_join(bella.weather)%>%
   left_join(sunmoon[sunmoon$Reef=="Bella Bella",])%>%
   left_join(bella.tides)%>%
+  left_join(bella.boat)%>%
   mutate(calls=ifelse(is.na(calls),0,calls),
          ID="BellaBella")
 
@@ -101,6 +112,7 @@ lions<-left_join(lions.spl,lions.calls)%>%
 
 hecate.spl<-read_xlsx("odata/hecatespl.xlsx")%>%
   select(Recorder,
+         ship=PresShipNoise,
          yr=Year,
          mnth=Month,
          dy=Day,
