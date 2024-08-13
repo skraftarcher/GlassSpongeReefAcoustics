@@ -102,10 +102,21 @@ lions.tides<-bind_rows(read.csv("odata/lions_tide_data1.csv"),read.csv("odata/li
          mns=minute(date))%>%
   select(-Obs_date,-date)
 
+lions.boat<-read_xlsx("odata/PAMlabResults_LionsBay__20170930_20171130__AOutput 1(in).xlsx")%>%
+  select(Time,ship='shipping tonals')%>%
+  mutate(yr=year(Time),
+         mnth=month(Time),
+         dy=day(Time),
+         hr=hour(Time),
+         mns=minute(Time),
+         ship=ifelse(ship==0,0,1))%>%
+  select(-Time)
+
 lions<-left_join(lions.spl,lions.calls)%>%
   left_join(lions.weather)%>%
   left_join(sunmoon[sunmoon$Reef=="Lions Bay",])%>%
   left_join(lions.tides)%>%
+  left_join(lions.boat)%>%
   mutate(calls=ifelse(is.na(calls),0,calls),
          ID="LionsBay")
 
